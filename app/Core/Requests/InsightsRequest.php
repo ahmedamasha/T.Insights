@@ -3,6 +3,7 @@
 namespace App\Core\Request;
 
 use App\Core\Helpers\Csv;
+use DateInterval;
 use Illuminate\Http\Response;
 
 /**
@@ -12,6 +13,8 @@ use Illuminate\Http\Response;
  */
 class InsightsRequest extends Request
 {
+    const CSVPATH = "assets/export.csv";
+
     /**
      * @return array
      */
@@ -42,30 +45,15 @@ class InsightsRequest extends Request
      */
     public function process(): Response
     {
-        //Start the CSV object and provide a filename
-        $csv      = new Csv("export");
-        $insights = $csv->readCSV(resource_path("assets/export.csv"));
 
-        $groupedInsights = [];
+        $insights = $this->getCsvData(); // reading data from csc
 
-        //mapping throe the data ...
-        foreach ($insights as $insight) {
 
-            // @see http://us2.php.net/manual/en/function.date.php
-            // using ('w') to get date by week
-            $week = date('W', strtotime($insight['created_at']));
-
-            // create new empty array if it hasn't been created yet
-            if (!isset($groupedInsights[$week])) {
-                $groupedInsights[$week] = [];
-            }
-            //append the post to the array
-            $groupedInsights[$week][] = $insight;
-        }
-
+        $groupedInsights = $this->getGroupedData($insights); // grouping weekly data
 
         $result = [];
         foreach ($groupedInsights as $k => $groupedInsight) {
+
             $arrayCount = array_count_values(array_column($groupedInsight, "onboarding_perentage"));
 
             $data    = [];
@@ -107,5 +95,53 @@ class InsightsRequest extends Request
         }
 
         return $item[$key];
+    }
+
+    /**
+     * read data from the csv
+     *
+     * @return array
+     *
+     * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
+     *
+     */
+    private function getCsvData(): array
+    {
+        //Start the CSV object and provide a filename
+        $csv = new Csv("on-boarding data for Temper");
+
+        return $csv->readCSV(resource_path(self::CSVPATH));
+
+    }
+
+    /**
+     * getdata grouped per week
+     *
+     * @param array $insights
+     *
+     * @return array
+     *
+     * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
+     *
+     */
+    private function getGroupedData(array $insights): array
+    {
+        $groupedInsights = [];
+        //mapping throw the data ...
+        foreach ($insights as $insight) {
+
+            // @see http://us2.php.net/manual/en/function.date.php
+            // using ('w') to get date by week
+            $week = date('W', strtotime($insight['created_at']));
+
+            // create new empty array if it hasn't been created yet
+            if (!isset($groupedInsights[$week])) {
+                $groupedInsights[$week] = [];
+            }
+            //append the post to the array
+            $groupedInsights[$week][] = $insight;
+        }
+
+        return $groupedInsights ?? [];
     }
 }

@@ -4,3 +4,4 @@
  
 
 
+![insights](resources/assets/insights.png)

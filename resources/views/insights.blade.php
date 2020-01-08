@@ -24,7 +24,7 @@
             mounted() {
                 axios.get('/api/insight')
                     .then(function (response) {
-                        console.log(response);
+
                         let results = response.data;
                         console.log(results);
 
@@ -41,7 +41,7 @@
 
                                 yAxis: {
                                     title: {
-                                        text: 'Number of Users'
+                                        text: 'Users Number'
                                     }
                                 },
 
