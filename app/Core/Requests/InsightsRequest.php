@@ -18,15 +18,21 @@ class InsightsRequest extends Request
      * @var \App\Core\Helpers\Profile
      */
     private $profile;
+    /**
+     * @var \App\Helpers\Csv
+     */
+    private $csv;
 
     /**
      * InsightsRequest constructor.
      *
      * @param \App\Core\Helpers\Profile $profile
+     * @param \App\Helpers\Csv          $csv
      */
-    public function __construct(Profile $profile)
+    public function __construct(Profile $profile, Csv $csv)
     {
         $this->profile = $profile;
+        $this->csv     = $csv;
     }
 
 
@@ -73,7 +79,7 @@ class InsightsRequest extends Request
 
             $data      = $this->spreadAccountData($arrayCount, $groupedInsights[$k]);
             $result [] = [
-                Constants::INSIGHTS_NAME_KEY=> "week " . $k,
+                Constants::INSIGHTS_NAME_KEY => "week " . $k,
                 Constants::INSIGHTS_DATA_KEY => $data,
             ];
         }
@@ -127,13 +133,12 @@ class InsightsRequest extends Request
      * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
      *
      */
-    private function getCsvData(): array
+    public function getCsvData(): array
     {
         //Start the CSV object and provide a filename
-        $csv     = new Csv("on-boarding data for Temper");
         $csvPath = $this->getCsvPath();
 
-        return $csv->readCSV($csvPath);
+        return $this->csv->readCSV($csvPath);
 
     }
 
@@ -147,7 +152,7 @@ class InsightsRequest extends Request
      * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
      *
      */
-    private function getGroupedData(array $insights): array
+    public function getGroupedData(array $insights): array
     {
         $groupedInsights = [];
         //mapping throw the data ...
@@ -176,8 +181,8 @@ class InsightsRequest extends Request
      * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
      *
      */
-    private function getCsvPath(): string
+    public function getCsvPath(): string
     {
-        return resource_path(env("CSVPATH"));
+        return  resource_path(env("CSVPATH"));
     }
 }

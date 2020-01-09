@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 class ProfileTest extends TestCase
 {
     /**
-     * DESC
+     * testProfile
      *
      * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
      *
