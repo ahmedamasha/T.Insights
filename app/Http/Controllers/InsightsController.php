@@ -9,15 +9,28 @@ use Illuminate\Http\Request;
 class InsightsController extends Controller
 {
     /**
+     * @var \App\Core\Request\InsightsRequest
+     */
+    private $insightsRequest;
+
+    /**
+     * InsightsController constructor.
+     *
+     * @param \App\Core\Request\InsightsRequest $insightsRequest
+     */
+    public function __construct(InsightsRequest $insightsRequest)
+    {
+        $this->insightsRequest = $insightsRequest;
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $insight = new InsightsRequest();
-
-        return $insight->process();
+        return $this->insightsRequest->process();
     }
 
     /**

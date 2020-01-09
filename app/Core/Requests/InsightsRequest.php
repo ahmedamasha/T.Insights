@@ -2,8 +2,9 @@
 
 namespace App\Core\Request;
 
+use App\Core\Constants\Constants;
 use App\Core\Helpers\Csv;
-use DateInterval;
+use App\Core\Helpers\Profile;
 use Illuminate\Http\Response;
 
 /**
@@ -13,7 +14,21 @@ use Illuminate\Http\Response;
  */
 class InsightsRequest extends Request
 {
-    const CSVPATH = "assets/export.csv";
+    /**
+     * @var \App\Core\Helpers\Profile
+     */
+    private $profile;
+
+    /**
+     * InsightsRequest constructor.
+     *
+     * @param \App\Core\Helpers\Profile $profile
+     */
+    public function __construct(Profile $profile)
+    {
+        $this->profile = $profile;
+    }
+
 
     /**
      * @return array
@@ -48,33 +63,40 @@ class InsightsRequest extends Request
 
         $insights = $this->getCsvData(); // reading data from csc
 
-
         $groupedInsights = $this->getGroupedData($insights); // grouping weekly data
 
+        // calculate the percentage of data per week
         $result = [];
         foreach ($groupedInsights as $k => $groupedInsight) {
 
-            $arrayCount = array_count_values(array_column($groupedInsight, "onboarding_perentage"));
+            $arrayCount = array_count_values(array_column($groupedInsight, Constants::ONBOARDINGFLAG));
 
-            $data    = [];
-            $data[0] = 100;
-
-            $data[1] = round(($this->checkPercentageExists(0, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[2] = round(($this->checkPercentageExists(20, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[3] = round(($this->checkPercentageExists(40, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[4] = round(($this->checkPercentageExists(50, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[5] = round(($this->checkPercentageExists(70, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[6] = round(($this->checkPercentageExists(90, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[7] = round(($this->checkPercentageExists(99, $arrayCount) / count($groupedInsights[$k])) * 100);
-            $data[8] = round(($this->checkPercentageExists(100, $arrayCount) / count($groupedInsights[$k])) * 100);
-
+            $data      = $this->spreadAccountData($arrayCount, $groupedInsights[$k]);
             $result [] = [
-                "name" => "week " . $k,
-                "data" => $data,
+                Constants::INSIGHTS_NAME_KEY=> "week " . $k,
+                Constants::INSIGHTS_DATA_KEY => $data,
             ];
         }
 
         return response($result);
+    }
+
+
+    public function spreadAccountData($accountData, $groupInsights)
+    {
+        $insights   = [];
+        $AccountArr = $this->profile->profilePercentage();
+
+        $insights[0] = 100; //  starting from 100 on y axis
+
+        // get the data of accounts  per account percentage
+        $i = 1;
+        foreach ($AccountArr as $item) {
+            $insights[$i] = round(($this->checkPercentageExists($item, $accountData) / count($groupInsights)) * 100);
+            $i++;
+        }
+
+        return array_values($insights);
     }
 
     /**
@@ -108,9 +130,10 @@ class InsightsRequest extends Request
     private function getCsvData(): array
     {
         //Start the CSV object and provide a filename
-        $csv = new Csv("on-boarding data for Temper");
+        $csv     = new Csv("on-boarding data for Temper");
+        $csvPath = $this->getCsvPath();
 
-        return $csv->readCSV(resource_path(self::CSVPATH));
+        return $csv->readCSV($csvPath);
 
     }
 
@@ -143,5 +166,18 @@ class InsightsRequest extends Request
         }
 
         return $groupedInsights ?? [];
+    }
+
+    /**
+     * getCsvPath from env file
+     *
+     * @return string
+     *
+     * @author Ahmed Amasha <ahmed.amasha@tajawal.com>
+     *
+     */
+    private function getCsvPath(): string
+    {
+        return resource_path(env("CSVPATH"));
     }
 }
