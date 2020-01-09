@@ -47,6 +47,6 @@ class InsightsTest extends TestCase
 
         $this->assertEquals(29, key($insightArr));
         $this->assertTrue(is_int(key($insightArr)));
-        
+
     }
 }
