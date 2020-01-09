@@ -1,8 +1,16 @@
 <?php
-namespace App\Core\Helpers;
+namespace App\Helpers;
 
 class Csv
 {
+    private   $filename;
+    protected $rows = [];
+
+    public function __construct($filename = "file")
+    {
+        $this->filename = $filename . '.csv';
+    }
+
     /**
      * readCSV
      *
