@@ -5,7 +5,9 @@ namespace App\Core\Contracts;
 /**
  * Interface RequestInterface
  *
- * @package App\Core\Base\Contracts
+ * @package App\Core\Contracts
+ * @author  Ahmed Amasha <ahmed.amasha@tajawal.com>
+ *
  */
 interface RequestInterface
 {

@@ -3,14 +3,6 @@ namespace App\Core\Helpers;
 
 class Csv
 {
-    private   $filename;
-    protected $rows = [];
-
-    public function __construct($filename = "file")
-    {
-        $this->filename = $filename . '.csv';
-    }
-
     /**
      * readCSV
      *
