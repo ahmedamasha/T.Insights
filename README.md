@@ -25,6 +25,16 @@
  I kept the model just in the fulure if we gonna connect to any db 
  
  
+ - run the app 
+ to run the app just 
+ 1- composer install
+ 2- php artisan serve
+ 
+ to get the endpoint 
+ GET http://localhost:8090/api/insight
+ in the browser 
+ http://localhost:8090
+ 
  
 
 #Image for result
